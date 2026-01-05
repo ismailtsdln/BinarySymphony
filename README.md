@@ -9,6 +9,8 @@ Convert binary files into musical symphonies! Transform any binary data (executa
 
 - **Multiple Output Formats**: Generate WAV, MP3, or MIDI files from binary data
 - **Flexible Mapping Modes**: Choose from melody, rhythm, or spectrum modes
+- **Musical Scales**: Support for chromatic, major, minor, pentatonic, blues, dorian, and phrygian scales
+- **Batch Processing**: Convert multiple files at once with progress tracking
 - **Command-Line Interface**: Easy-to-use CLI with comprehensive options and rich UI
 - **Graphical User Interface**: Interactive PyQt6-based GUI for visual control
 - **Visualization**: Generate spectrograms and note frequency plots
@@ -55,9 +57,12 @@ binarysymphony --input myfile.exe --output symphony.wav --mode melody --format w
 
 #### CLI Options
 
-- `--input, -i`: Input binary file (required)
-- `--output, -o`: Output file path (required)
+- `--input, -i`: Input binary file (required for single file mode)
+- `--output, -o`: Output file path (required for single file mode)
+- `--batch-input, -bi`: Input directory for batch processing (alternative to --input)
+- `--batch-output, -bo`: Output directory for batch processing (alternative to --output)
 - `--mode`: Mapping mode - `melody`, `rhythm`, or `spectrum` (default: melody)
+- `--scale`: Musical scale - `chromatic`, `major`, `minor`, `pentatonic`, `blues`, `dorian`, `phrygian` (default: chromatic)
 - `--format`: Output format - `wav`, `mp3`, `midi`, or `spectrum` (default: wav)
 - `--debug`: Enable debug output
 
@@ -67,14 +72,20 @@ binarysymphony --input myfile.exe --output symphony.wav --mode melody --format w
 # Convert an executable to a melody in WAV format
 binarysymphony -i malware.exe -o output.wav
 
-# Generate MIDI from a document with rhythm mode
-binarysymphony -i document.pdf -o music.mid -f midi -m rhythm
+# Generate MIDI from a document with rhythm mode and major scale
+binarysymphony -i document.pdf -o music.mid -f midi -m rhythm --scale major
 
-# Create MP3 with debug info
-binarysymphony -i image.png -o sound.mp3 -f mp3 --debug
+# Create MP3 with blues scale and debug info
+binarysymphony -i image.png -o sound.mp3 -f mp3 --scale blues --debug
 
-# Generate spectrogram visualization
-binarysymphony -i program.exe -o analysis.png -f spectrum
+# Generate spectrogram with pentatonic scale
+binarysymphony -i program.exe -o analysis.png -f spectrum --scale pentatonic
+
+# Batch process all files in a directory
+binarysymphony --batch-input ./samples --batch-output ./output --format wav --scale major
+
+# Batch convert with different formats and progress tracking
+binarysymphony -bi ./binaries -bo ./music -f midi -m rhythm --scale dorian
 ```
 
 ### Graphical User Interface
@@ -133,22 +144,39 @@ binarysymphony -i program.exe -o analysis.png -m spectrum
 ```python
 from binarysymphony import BinaryMapper, MidiExporter, AudioExporter
 
-# Read binary data
+# Single file processing
 with open('file.bin', 'rb') as f:
     data = f.read()
 
-# Map to notes
 mapper = BinaryMapper(mode='melody')
 notes = mapper.map_bytes_to_notes(data)
 
-# Export as MIDI
 midi_exporter = MidiExporter()
 midi_exporter.notes_to_midi(notes, 'output.mid')
 
-# Or as WAV
 waveform = mapper.generate_waveform(notes)
 audio_exporter = AudioExporter()
 audio_exporter.save_wav(waveform, 44100, 'output.wav')
+
+# Batch processing multiple files
+import os
+from pathlib import Path
+
+input_dir = Path('./samples')
+output_dir = Path('./output')
+output_dir.mkdir(exist_ok=True)
+
+mapper = BinaryMapper(mode='rhythm', scale='major')
+midi_exporter = MidiExporter()
+
+for input_file in input_dir.glob('*'):
+    if input_file.is_file():
+        with open(input_file, 'rb') as f:
+            data = f.read()
+        
+        notes = mapper.map_bytes_to_notes(data)
+        output_file = output_dir / f"{input_file.stem}.mid"
+        midi_exporter.notes_to_midi(notes, str(output_file))
 ```
 
 ## Development
@@ -180,15 +208,6 @@ twine upload dist/*
 3. Add tests for new functionality
 4. Ensure all tests pass
 5. Submit a pull request
-
-## Roadmap
-
-- [ ] AI-powered musical mapping optimization
-- [ ] Malware classification-based music profiles
-- [ ] Web interface with WebAudio API
-- [ ] REST API for binary-to-music conversion
-- [ ] Support for additional audio formats
-- [ ] Real-time audio streaming
 
 ## License
 

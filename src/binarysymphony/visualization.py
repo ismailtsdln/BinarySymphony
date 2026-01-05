@@ -2,7 +2,7 @@
 
 import matplotlib.pyplot as plt
 import numpy as np
-from typing import List, Tuple
+from typing import List, Tuple, Optional
 
 
 class Visualizer:
@@ -11,11 +11,13 @@ class Visualizer:
     def __init__(self):
         pass
 
-    def plot_notes(self, notes: List[Tuple[float, float]], output_file: str = None):
+    def plot_notes(
+        self, notes: List[Tuple[float, float]], output_file: Optional[str] = None
+    ):
         """Plot note frequencies over time."""
         times = []
         freqs = []
-        current_time = 0
+        current_time = 0.0
         for freq, duration in notes:
             times.extend([current_time, current_time + duration])
             freqs.extend([freq, freq])
@@ -32,7 +34,7 @@ class Visualizer:
             plt.show()
 
     def plot_spectrogram(
-        self, waveform: np.ndarray, sample_rate: int, output_file: str = None
+        self, waveform: np.ndarray, sample_rate: int, output_file: Optional[str] = None
     ):
         """Plot spectrogram of the waveform."""
         plt.figure(figsize=(10, 6))

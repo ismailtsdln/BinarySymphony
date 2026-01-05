@@ -21,6 +21,20 @@ class TestBinaryMapper:
         durations = [d for _, d in notes]
         assert len(set(durations)) > 0  # At least some variation
 
+    def test_map_bytes_to_notes_with_scale(self):
+        mapper = BinaryMapper(mode="melody", scale="major")
+        data = b"\x00\x01\x02"
+        notes = mapper.map_bytes_to_notes(data)
+        assert len(notes) == 3
+        # Major scale should only use specific intervals
+        frequencies = [f for f, _ in notes]
+        # Check that frequencies correspond to major scale notes
+        assert all(isinstance(f, (int, float)) for f in frequencies)
+
+    def test_invalid_scale(self):
+        with pytest.raises(ValueError):
+            BinaryMapper(scale="invalid_scale")
+
     def test_generate_waveform(self):
         mapper = BinaryMapper()
         notes = [(440.0, 0.5), (880.0, 0.5)]

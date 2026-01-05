@@ -27,10 +27,11 @@ class WorkerThread(QThread):
     progress = pyqtSignal(int)
     finished = pyqtSignal(str)
 
-    def __init__(self, input_file, mode, output_format, output_file):
+    def __init__(self, input_file, mode, scale, output_format, output_file):
         super().__init__()
         self.input_file = input_file
         self.mode = mode
+        self.scale = scale
         self.output_format = output_format
         self.output_file = output_file
 
@@ -44,7 +45,7 @@ class WorkerThread(QThread):
             self.progress.emit(25)
 
             # Map notes
-            mapper = BinaryMapper(mode=self.mode)
+            mapper = BinaryMapper(mode=self.mode, scale=self.scale)
             notes = mapper.map_bytes_to_notes(data)
             self.progress.emit(50)
 
@@ -98,6 +99,16 @@ class BinarySymphonyGUI(QWidget):
         self.mode_combo.addItems(["melody", "rhythm", "spectrum"])
         mode_layout.addWidget(self.mode_combo)
         layout.addLayout(mode_layout)
+
+        # Scale selection
+        scale_layout = QHBoxLayout()
+        scale_layout.addWidget(QLabel("Scale:"))
+        self.scale_combo = QComboBox()
+        self.scale_combo.addItems(
+            ["chromatic", "major", "minor", "pentatonic", "blues", "dorian", "phrygian"]
+        )
+        scale_layout.addWidget(self.scale_combo)
+        layout.addLayout(scale_layout)
 
         # Format selection
         format_layout = QHBoxLayout()
@@ -156,6 +167,7 @@ class BinarySymphonyGUI(QWidget):
         self.worker = WorkerThread(
             self.input_file,
             self.mode_combo.currentText(),
+            self.scale_combo.currentText(),
             self.format_combo.currentText(),
             self.output_file,
         )
