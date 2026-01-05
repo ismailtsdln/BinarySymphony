@@ -1,0 +1,46 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "binarysymphony"
+version = "0.1.0"
+description = "Convert binary files into musical output"
+authors = [
+    {name = "Ismail Tasdelen", email = "ismailtasdelen@example.com"},
+]
+dependencies = [
+    "pydub",
+    "pygame",
+    "mido",
+    "numpy",
+    "matplotlib",
+    "PyQt6",
+    "pytest",
+    "black",
+    "flake8",
+    "rich",
+]
+requires-python = ">=3.8"
+readme = "README.md"
+license = {text = "MIT"}
+
+[project.scripts]
+binarysymphony = "binarysymphony.cli:main"
+binarysymphony-gui = "binarysymphony.gui:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.black]
+line-length = 88
+
+[tool.flake8]
+max-line-length = 88
+extend-ignore = ["E203", "W503"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
